@@ -1,0 +1,35 @@
+:root{
+	--white:#FFFFFF;
+	--themeBackground:orange;
+	--globalFont:"ddk";
+}
+@font-face {
+	/* font-family:ddk;
+	src: url("../font/bk.ttf"); */
+}
+
+/* 通用css */
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+.flexBetWeen{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.flexCenter{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+/* 图片 */
+.background-image{
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	z-index: -1;
+}
