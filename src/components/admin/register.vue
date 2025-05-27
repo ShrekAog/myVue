@@ -65,7 +65,6 @@ import { useRouter } from 'vue-router';
 		registerRef.value.validate(async (valid) => {
 			if(valid){
 				if(!checkUsername.value){
-					
 					let {data} = await userRegister(registerForm);
 					if(data.data){
 						registerRef.value.resetFields();
@@ -81,7 +80,9 @@ import { useRouter } from 'vue-router';
 		})
 	}
 	const checkName = async () => {
+		console.log(registerForm.username)
 		let {data} = await checkUsernameExist(registerForm.username);
+		console.log(data)
 		if(data.data){
 			checkUsername.value = true;
 		}else {

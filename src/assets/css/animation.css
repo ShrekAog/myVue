@@ -1,6 +1,6 @@
 @keyframes fade-blur-in{
 	0% {
-		filter: blur(var(--blur) + 200px) brightness(.4);
+		filter: blur(calc(var(--blur) + 200px)) brightness(.4);
 		transform: scale(1.5);
 	}
 	100% {

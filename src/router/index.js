@@ -12,11 +12,21 @@ const router = createRouter({
 	},
     {
       path: '/',
-      component: () => import('../components/home.vue'),
+      component: () => import('../views/home.vue'),
 	  children:[{
 			path: '/',
 			name: 'index',
 			component: () => import('../components/index.vue')
+		},
+		{
+			path: '/content',
+			name: 'content',
+			component: () => import('../views/content.vue'),
+			children:[{
+				path: '/suibi',
+				name: 'suibi',
+				component: () => import('../components/suibi.vue')
+			}]
 		},
 	  ]
     },

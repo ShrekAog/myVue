@@ -8,7 +8,7 @@
 			<div>
 				<ul class="scroll-menu">
 					<li>
-						<div class="my-menu">
+						<div class="my-menu" @click="go('/')">
 							<span>🏡 首页</span>
 						</div>
 					</li>
@@ -18,7 +18,7 @@
 						</div>
 					</li>
 					<li>
-						<div class="my-menu">
+						<div class="my-menu" @click="go('/suibi')">
 							<span>🏖 随笔</span>
 						</div>
 					</li>
@@ -76,11 +76,12 @@
 
 <script setup>
 	import {ref,onMounted,onBeforeMount, reactive} from 'vue'
-	import { RouterView } from 'vue-router'
+	import { RouterView, useRouter } from 'vue-router'
 	import logo from '@/assets/home/logo.png'
 	import { getAssetsImageFile } from '@/utils/getAssetsFile'
 	import EasyTyper from 'easy-typer-js'
 	import axios from 'axios'
+	const router = useRouter();
 	let isPhone = ref(false);
 	let isDrawer = ref(false);
 	let isOrien = ref(false);
@@ -109,7 +110,9 @@
 		resize();
 		isOrientation();
 	}
-	
+	const go = (path) => {
+		router.push({path:path})
+	}
 	function resize(){
 		window.addEventListener("resize",() => {
 			if(window.innerWidth <= 784){
@@ -281,5 +284,9 @@
 			justify-content: end;
 		}
 	}
+	#mian-container{
+		background-color: #eee;
+	}
+	
 
 </style>

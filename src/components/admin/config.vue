@@ -1,5 +1,5 @@
 <template>
-	<el-row>
+	<el-row class="row-box">
 		<el-col :span="6">
 			<el-tooltip placement="top" effect="dark" :content="objects.wallpaper.title">
 				<el-form-item label="主页壁纸">
@@ -175,4 +175,7 @@ elNotification,
 </script>
 
 <style scoped>
+	.row-box{
+		justify-content: space-around;
+	}
 </style>

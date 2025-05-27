@@ -191,7 +191,7 @@
 		height: 100%;
 		object-fit: cover;
 		transform: scale(1.2);
-		filter: blur(var(--blur)) brightness(.8);
+		filter: blur(calc(var(--blur))) brightness(.8);
 		transition: filter .3s, transform .3s;
 		animation: fade-blur-in 1s cubic-bezier(.25, .46, .45, .94);
 	}
