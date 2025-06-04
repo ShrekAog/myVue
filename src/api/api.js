@@ -2,6 +2,30 @@ import { ElMessage, ElNotification } from 'element-plus';
 import axiosInstance from '@/utils/axiosConfig';
 import router from '@/router';
 
+// a	动画
+// b	漫画
+// c	游戏
+// d	文学
+// e	原创
+// f	来自网络
+// g	其他
+// h	影视
+// i	诗词
+// j	网易云
+// k	哲学
+// l	抖机灵
+
+export const yiyan = (params = '') => {
+	const url = new URL("https://international.v1.hitokoto.cn/");
+	const keys = params.split(',');
+	keys.forEach(key => {
+		if(key){
+			url.searchParams.append('c',key)
+		}
+	})
+	return axiosInstance.get(url);
+}
+
 export const elNotification = (title,message,type) => {
 	ElNotification({
 		title:title,
@@ -51,6 +75,10 @@ export const parseUserToken = async (token) => {
 
 export const getUserInfoByToken = async (token) => {
 	return axiosInstance.get("/api/users/getUserInfo",{params:{token:token}})
+}
+
+export const updateUser = async (user) => {
+	return axiosInstance.put("/api/users/update",user);
 }
 
 export const outLogin = () => {

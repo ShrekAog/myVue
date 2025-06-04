@@ -17,7 +17,7 @@
 	import EasyTyper from 'easy-typer-js'
 	import { onMounted,reactive, ref } from "vue";
 	import axiosInstance from "@/utils/axiosConfig";
-import { getResourceByList, getResourceList } from "@/api/api";
+import { getResourceByList, getResourceList,yiyan } from "@/api/api";
 	const easy = reactive({
 		output:'',
 		type:"custom",
@@ -36,8 +36,9 @@ import { getResourceByList, getResourceList } from "@/api/api";
 		new EasyTyper(easy,input);
 	}
 	const initText = () => {
-		axiosInstance.get("https://international.v1.hitokoto.cn/?c=i&c=k&c=c")
-		.then(({data}) => {
+		let data = yiyan('d,i,k');
+		data
+		.then( ({data}) => {
 			initTyped(data.hitokoto)
 		})
 		.catch(err => {
@@ -52,9 +53,7 @@ import { getResourceByList, getResourceList } from "@/api/api";
 				list.value.push(item);
 			}
 		})
-		console.log(list.value)
 		wallObj.value = list.value[Math.floor(Math.random() * list.value.length)].path;
-		console.log(wallObj)
 	}
 	
 	

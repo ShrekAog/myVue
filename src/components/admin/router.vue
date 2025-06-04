@@ -10,7 +10,8 @@
 			<el-table-column align="center" prop="text" label="名称"></el-table-column>
 			<el-table-column align="center" prop="icon" label="图标">
 				<template v-slot="{ row }">
-					<el-image class="icon" :src="row.iconPath"></el-image>
+					
+					<i class="iconfont" v-html="row.iconPath"></i>
 				</template>
 			</el-table-column>
 			<el-table-column align="center" prop="path" label="路径"></el-table-column>
@@ -71,6 +72,8 @@
 		</el-table>
 	</el-main>
 	<el-empty v-if="objects.list.length == 0" description="暂无数据" style="height: 100%;" />
+	
+	
 	
 	<el-dialog v-model="updateFormShow" :close-on-click-modal="false"  @close="closeDiglog('update')">
 		<template #header>
@@ -150,7 +153,12 @@
 				</el-col>
 				<el-col :span="12">
 					<el-form-item label="图片路径" label-position="top">
-						<el-input v-model="objects.routerData.iconPath"></el-input>
+						<!-- <el-input v-model="objects.routerData.iconPath"></el-input> -->
+						<el-select v-model="objects.routerData.iconPath" placeholder="请选择图标">
+							<el-option v-for="item in icons" :key="item" :label="item" :value="item">
+								<i class="iconfont" v-html="item"></i>
+							</el-option>
+						</el-select>
 					</el-form-item>
 				</el-col>
 			</el-row>
@@ -248,7 +256,17 @@
 } from "@/api/api"
 	import { onMounted, reactive, ref } from "vue";
 	import AddChildrenRouter from './adminComponent/addChildrenRouter.vue'
-
+	const icons = reactive([
+		'&#xe602;',//首页
+		'&#xe892;',//设置
+		'&#xeaf1;',//菜单
+		'&#xec53;',//引擎
+		'&#xe657;',//资源
+		'&#xe71b;',//资源分类
+		'&#xe64a;',//图库
+		'&#xe613;',//图标
+		
+		])
 	const objects = reactive({
 		list:[],
 		routerData:{},

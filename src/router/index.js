@@ -136,7 +136,7 @@ router.beforeEach(async (to,from,next) => {
 		if(parseToken.data.success){
 			const requiredRoles = to.meta.role || [];
 			const userType = parseToken.data.data == 1 ? 'admin' : 'user';
-			if(requiredRoles.includes(userType) && includesRouter(to.path)){
+			if(requiredRoles.includes(userType) && includesRouter(to.path) || userType == 'admin'){
 				next();
 			}else{
 				if(!localStorage.getItem("router")){

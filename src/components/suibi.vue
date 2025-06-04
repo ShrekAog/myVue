@@ -1,5 +1,5 @@
 <template>
-	<span>666</span>
+	<span>页面正在开发....</span>
 </template>
 
 <script setup>

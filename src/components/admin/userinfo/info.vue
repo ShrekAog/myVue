@@ -1,5 +1,6 @@
 <template>
 	<el-dialog
+		top="4vh"
 		:width="dialog"
 		style="background-color: #eee;"
 		:model-value="visible"
@@ -14,7 +15,7 @@
 				<p style="font-size: 12px;color: #ccc;">通行证ID:{{user.id}}</p>
 				<p style="font-size: 12px;color: #ccc;">手机:{{user.phoneNumber}}</p>
 				<p style="font-size: 12px;color: #ccc;">邮箱:{{user.email}}</p>
-				<p style="margin-top: 15px;">{{user.introduction}}</p>
+				<p style="margin-top: 15px;max-width: 80%;">{{user.introduction}}</p>
 			</div>
 		</div>
 		
@@ -32,9 +33,23 @@
 				
 				<el-form :model="user" class="form">
 					<el-form-item label="昵称" label-width="60px">
-						<el-input class="input" v-model="userInfo.nickName"></el-input>
+						<el-input class="input" v-model="user.nickName"></el-input>
 						<span class="edit">{{nickNameLength}}/20</span>
 					</el-form-item>
+					<el-form-item label="性别" label-width="60px">
+						<el-radio-group v-model="user.gender" class="radio-group">
+							<el-radio :value="1">男</el-radio>
+							<el-radio :value="2">女</el-radio>
+							<el-radio :value="0">保密</el-radio>
+						</el-radio-group>
+					</el-form-item>
+					<el-form-item label="简介" label-width="60px">
+						<el-input class="input" type="textarea" :rows="5" resize="none" v-model="user.introduction"></el-input>
+						<span class="edit-textarea">{{introductionLength}}/150</span>
+					</el-form-item>
+					<div class="flexCenter">
+						<el-button type="primary" style="min-width:160px;" @click="update">保存</el-button>
+					</div>
 				</el-form>
 				
 			</div>
@@ -45,21 +60,12 @@
 
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { getUserInfoByToken} from "@/api/api";
+import { getUserInfoByToken, showElMsg, updateUser} from "@/api/api";
 	
-	const user = ref(null);
-	const userInfo = ref({
-		nickName:''
-	});
-	
+	const user = ref({});
 	const dialog = ref('800px');
 	const nickNameLength = ref(0);
-	
-	const info = async () => {
-		let {data} = await getUserInfoByToken(localStorage.getItem("token"));
-		user.value = data.data;
-		console.log(user.value);
-	}
+	const introductionLength = ref(0);
 	onMounted(() => {
 		info();
 		window.onresize = () => {
@@ -70,29 +76,46 @@ import { getUserInfoByToken} from "@/api/api";
 		}
 	})
 	
-	
-	const calculateNickNameLength = (nickName,size) => {
-	  let length = 0;
-	  let result = '';
-	  for (let char of nickName) {
-	    const regex = /[\u4e00-\u9fa5]/;
-	    if (regex.test(char)) {
-	      length += 2; // 中文字符算2个长度
-	    } else {
-	      length += 1; // 其他字符算1个长度
-	    }
-		if(length <= size){
-			result += char
-		} else {
-			break;
+	const update = async () => {
+		let {data} = await updateUser(user.value);
+		if(data.data){
+			showElMsg("success","修改成功");
+			emit("update:visible",false);
 		}
-	  }
-	  userInfo.value.nickName = result;
-	  return length;
 	}
-	watch(() => userInfo.value.nickName,(New,old) => {
-		nickNameLength.value = calculateNickNameLength(New,20);
+	
+	const info = async () => {
+		let {data} = await getUserInfoByToken(localStorage.getItem("token"));
+		user.value = data.data;
+		console.log(user.value);
+	}
+	
+	const calculateNickNameLength = (val,size) => {
+		let length = 0;
+		let result = '';
+		const regex = /[\u4e00-\u9fa5]/;
+		for (let char of val) {
+			let charLength = regex.test(char) ? 2 : 1;
+			if(length + charLength > size){
+				break;
+			}
+			length += charLength;
+			result += char;
+			
+		}
+		console.log(`Final length: ${length}, Result: ${result}`); // 调试信息
+		return {length,result};
+	}
+	watch(() => user.value.nickName,(New,old) => {
+		let {length,result} = calculateNickNameLength(New,20);
+		nickNameLength.value = length;
+		user.value.nickName = result;
 	});
+	watch(() => user.value.introduction,(New,old) => {
+		let {length,result} = calculateNickNameLength(New,150);
+		introductionLength.value = length;
+		user.value.introduction = result;
+	})
 	
 	
 	
@@ -106,7 +129,6 @@ import { getUserInfoByToken} from "@/api/api";
 			dialog.value = "800px";
 		}
 	}
-	
 	const props = defineProps({
 		visible:Boolean
 	})
@@ -147,7 +169,7 @@ import { getUserInfoByToken} from "@/api/api";
 	
 	.input{
 		position: relative;
-		height: 45px;
+		min-height: 45px;
 	}
 	.edit{
 		position: absolute;
@@ -156,17 +178,24 @@ import { getUserInfoByToken} from "@/api/api";
 		top: 5px;
 		color: #ccc;
 	}
-	.main >>> .el-form-item__label{
+	.edit-textarea{
+		position: absolute;
+		font-size: 14px;
+		right: 6px;
+		bottom: 15px;
+		color: #ccc;
+	}
+	:deep(.el-form-item__label){
 		font-size: 16px;
 		line-height: 45px;
 		color: #999;
 	}
 	@media(min-width:784px){
 		.main-info{
-			padding: 40px 30px 100px;
+			padding: 0 30px;
 		}
 		.form{
-			padding: 80px 110px;
+			padding: 80px 90px;
 		}
 	}
 	@media(max-width:784px){
@@ -176,5 +205,8 @@ import { getUserInfoByToken} from "@/api/api";
 		.main-info{
 			padding-top: 20px;
 		}
+	}
+	.radio-group{
+		margin-top: 7px;
 	}
 </style>
