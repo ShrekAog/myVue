@@ -77,6 +77,10 @@ export const getUserInfoByToken = async (token) => {
 	return axiosInstance.get("/api/users/getUserInfo",{params:{token:token}})
 }
 
+export const getUserInfoById = async (id) => {
+	return axiosInstance.get(`/api/users/getUserInfo/${id}`);
+}
+
 export const updateUser = async (user) => {
 	return axiosInstance.put("/api/users/update",user);
 }

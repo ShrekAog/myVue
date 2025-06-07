@@ -141,7 +141,6 @@
 		}
 		let searchTxt = item.path + status.defaultEngine.txt;
 		window.open(searchTxt);
-		
 	}
 	
 	const getWallpaperList = async (id) => {

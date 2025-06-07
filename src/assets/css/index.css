@@ -2,6 +2,8 @@
 	--white:#FFFFFF;
 	--themeBackground:orange;
 	--globalFont:"ddk";
+	--bannerYun:url("../image/bannerWave1.png");
+	--bannerYun2:url("../image/bannerWave2.png");
 }
 @font-face {
 	/* font-family:ddk;

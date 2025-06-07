@@ -5,11 +5,18 @@
 		</div>
 		<div class="gray"></div>
 		<h1 class="title">
-			{{easy.output}}
-			<span class="breath">|</span>
+			<div>
+				<h3 class="title_h3">
+					{{easy.output}}
+					<span class="breath">|</span>
+				</h3>
+			</div>
 		</h1>
+		<div class="bannerYun1"></div>
+		<div class="bannerYun2"></div>
 	</div>
 	<Router-View />
+	<el-footer style="height: 200px;background-color: red;"></el-footer>
 </template>
 
 <script setup>
@@ -36,7 +43,7 @@ import { getResourceByList, getResourceList,yiyan } from "@/api/api";
 		new EasyTyper(easy,input);
 	}
 	const initText = () => {
-		let data = yiyan('d,i,k');
+		let data = yiyan('i');
 		data
 		.then( ({data}) => {
 			initTyped(data.hitokoto)
@@ -67,7 +74,7 @@ import { getResourceByList, getResourceList,yiyan } from "@/api/api";
 	.container{
 		position: relative;
 		width: 100vw;
-		height: 40vh;
+		height: 50vh;
 	}
 	.cover{
 		position: absolute;
@@ -96,15 +103,42 @@ import { getResourceByList, getResourceList,yiyan } from "@/api/api";
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%,-50%);
-		font-size: 2.8rem;
+		font-size: 18px;
 		letter-spacing: 2px;
+		background-color: rgba(0, 0, 0, .5);
+		padding:0 10px;
+		border-radius: 10px;
 		color: var(--white);
 	}
+	.title_h3{
+		margin: 15px 0;
+	}
 	.breath{
+		font-size: 20px;
 		opacity: .8;
 		display: inline-block;
-		transform: translateY(-7px);
+		transform: translateY(-3px);
 		transition: opacity .3s, transform .3s;
-		animation: separator-breath .7s infinite alternate;
+		animation: separator-breath .4s infinite alternate;
+	}
+	
+	.bannerYun1{
+		position: absolute;
+		bottom: 0;
+		width: 200%;
+		height: 84px;
+		background: var(--bannerYun);
+		
+	}
+	.bannerYun2{
+		height: 100px;
+		width: 400%;
+		background: var(--bannerYun2);
+	}
+	.bannerYun1,.bannerYun2{
+		position: absolute;
+		bottom: 0;
+		background-repeat: repeat-x;
+		animation: bannerYun 120s linear infinite;
 	}
 </style>
