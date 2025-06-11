@@ -80,7 +80,6 @@ import { useRouter } from 'vue-router';
 		})
 	}
 	const checkName = async () => {
-		console.log(registerForm.username)
 		let {data} = await checkUsernameExist(registerForm.username);
 		console.log(data)
 		if(data.data){
@@ -128,7 +127,7 @@ import { useRouter } from 'vue-router';
 		width: 100%;
 		text-align: center;
 		letter-spacing: 2px;
-		font-size: 2.2rem;
+		
 	}
 	.form_parent{
 		width: 100%;
@@ -141,6 +140,7 @@ import { useRouter } from 'vue-router';
 		white-space:pre;
 		margin-top: 25px;
 		min-width: 280px;
+		padding: 0 25px;
 	}
 	.submit{
 		width: 100%;

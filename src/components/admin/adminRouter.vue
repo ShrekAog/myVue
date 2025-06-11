@@ -52,6 +52,8 @@ import { onMounted, reactive, ref } from "vue";
 import { getUserRouters,parseUserToken } from "@/api/api";
 import { useRoute, useRouter } from "vue-router";
 import { getAssetsImageFile } from "@/utils/getAssetsFile";
+import { useStore } from "vuex";
+	const store = useStore();
 	const isRender = ref(false);
 	const title = ref("后台管理系统");
 	const router = useRouter();
@@ -64,25 +66,25 @@ import { getAssetsImageFile } from "@/utils/getAssetsFile";
 	  getRouters();
 	});
 	async function getRouters() {
-		let userRes = await parseUserToken(localStorage.getItem("token"));
-		let {data: { data },} = await getUserRouters(userRes.data.data);
+		
+		let {data: { data },} = await getUserRouters(store.state.user.userType);
 		status.routers = data;
-		console.log(data)
-		let currentRouter = localStorage.getItem("router");
-		let currentRouterData = currentRouter ? JSON.parse(currentRouter) : null;
+		
+		let currentRouter = store.state.user.routers;
+		let currentRouterData = currentRouter ? currentRouter : null;
 		
 		//判断旧路由菜单与新路由菜单是否一致，不一致更新本地菜单
 		if(JSON.stringify(data) != JSON.stringify(currentRouterData)){
-			localStorage.setItem("router",JSON.stringify(data))
+			store.commit("user/updateRouters",data)
 		}
 		isRender.value = true;
 	}
 
-	defineProps({
+	const props = defineProps({
 	  isCollapse: {
 		type: Boolean,
 		default: false,
-	  },
+	  }
 	});
 </script>
 

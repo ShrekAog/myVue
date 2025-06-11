@@ -2,6 +2,7 @@ import { parseUserToken } from '@/api/api'
 import { createRouter, createWebHistory } from 'vue-router'
 import nProgress from 'nprogress'
 import { parse } from 'vue/compiler-sfc'
+import store from '@/store/store'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -28,6 +29,11 @@ const router = createRouter({
 				component: () => import('../components/suibi.vue')
 			}]
 		},
+		{
+			path: '/homelogin',
+			name: 'homeLogin',
+			component: () => import('../components/home/login.vue')
+		}
 	  ]
     },
 	{
@@ -123,30 +129,32 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to,from,next) => {
-	
+	let token = store.state.user.token;
 	nProgress.start();
+	if(to.path == "/login" && token){
+		next({path:"/admin/index"})
+	}
 	if(to.path.startsWith("/admin")){
 		//没有token
-		if(!localStorage.getItem("token")){
+		if(!token){
 			next({path:"/login"});
 			return;
 		}
-		
-		const parseToken = await parseUserToken(localStorage.getItem("token"));
-		if(parseToken.data.success){
+		const parseToken = store.state.user.userType;
+		if(parseToken){
 			const requiredRoles = to.meta.role || [];
-			const userType = parseToken.data.data == 1 ? 'admin' : 'user';
-			if(requiredRoles.includes(userType) && includesRouter(to.path) || userType == 'admin'){
+			const userType = parseToken == 1 ? 'admin' : 'user';
+			if(requiredRoles.includes(userType) && includesRouter(to.path)){
 				next();
 			}else{
-				if(!localStorage.getItem("router")){
+				if(!store.state.user.routers){
 					next({path:"/login"})
 				}else{
 					if(to.name == "classifyList"){
 						next(); //资源分类列表
 						return;
 					}
-					next({path:'/admin/index'})
+					next({path:`/admin/index`})
 				}
 			}
 		}else{
@@ -155,7 +163,6 @@ router.beforeEach(async (to,from,next) => {
 	}else {
 		next();
 	}
-	
 })
 router.afterEach(() => {
 	nProgress.done();
@@ -163,7 +170,7 @@ router.afterEach(() => {
 
 //判断用户通过url路由跳转时是否具备该页面权限
 const includesRouter = (path) => {
-	const userRouter = JSON.parse(localStorage.getItem("router"));
+	const userRouter = store.state.user.routers;
 	if(userRouter){
 		return userRouter.some(item => {
 			if(item.path == path){

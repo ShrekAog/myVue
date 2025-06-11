@@ -31,7 +31,8 @@ import {useRouter} from 'vue-router'
 import { onMounted, reactive, ref } from 'vue';
 import { userLogin,elNotification,getLoginWallpaperConfig,getResourceById,parseUserToken,getUserRouters } from "@/api/api";
 import { User,Lock } from '@element-plus/icons-vue'
-	
+import { useStore } from 'vuex';
+	const store = useStore();
 	const path = ref('')
 	const title = ref('网站管理后台')
 	const loginFormRef = ref(null)
@@ -60,15 +61,15 @@ import { User,Lock } from '@element-plus/icons-vue'
 					loginFormRef.value.resetFields();
 					return;
 				}
-				localStorage.setItem("token",data.data.token);
-				
-				let userRes = await parseUserToken(data.data.token);
-				let routers = await getUserRouters(userRes.data.data);
-				
-				localStorage.setItem("router",JSON.stringify(routers.data.data))
-				
+				store.commit("user/isLogin",true);
+				store.commit("user/isToken",data.data.token);
+				let type = await parseUserToken(store.state.user.token);
+				store.commit("user/updateUserType",type.data.data);
+				let routers = await getUserRouters(store.state.user.userType);
+				store.commit("user/updateRouters",routers.data.data);
 				router.push({path:'/admin'});
 				loginFormRef.value.resetFields();
+				
 			}
 		})
 		

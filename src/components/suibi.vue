@@ -1,45 +1,63 @@
 <template>
 	<div class="notes">
 		<div class="notes-content">
-			<el-card shadow="always" v-if="userInfo != null">
-				<template #header>
-					<div style="display: flex;">
-						<el-avatar v-if="userInfo.avatar != null" :src="userInfo.avatar" shape="square"></el-avatar>
-						<el-avatar v-else :src="getAssetsImageFile('avatar.png')" shape="square"></el-avatar>
-						<div class="header-nick">
-							<el-text>{{userInfo.nickName}}</el-text>
+			<el-button type="primary" size="small" @click="whiteVisible = true">写说说</el-button>
+			<template v-for="item in list">
+				<el-card shadow="always" v-if="userInfo != null">
+					<template #header>
+						{{item}}
+						<div style="display: flex;">
+							<el-avatar v-if="userInfo.avatar != null" :src="userInfo.avatar" shape="square"></el-avatar>
+							<el-avatar v-else :src="getAssetsImageFile('avatar.png')" shape="square"></el-avatar>
+							<div class="header-nick">
+								<el-text>{{userInfo.nickName}}</el-text>
+							</div>
 						</div>
-					</div>
-				</template>
-				<template #default>
-					今天不开心
-					<div class="notes-image" :class="{'grid-1':indexz == 1,
-					'grid-2':indexz == 2,
-					'grid-3':indexz == 3,
-					'grid-4':indexz == 4,
-					'grid-9':indexz >= 5}">
-						<el-image v-for="i in indexz" :src="userInfo.avatar" class="img" fit="cover"></el-image>
-					</div>
-				</template>
-				<template #footer>
-					写什么好呢！！！！！
-				</template>
-			</el-card>
+					</template>
+					<template #default>
+						<p class="notes-text">
+							{{item.content}}
+						</p>
+						<div class="notes-image" :class="{'grid-1':indexz == 1,
+						'grid-2':indexz == 2,
+						'grid-3':indexz == 3,
+						'grid-4':indexz == 4,
+						'grid-9':indexz >= 5}">
+							<el-image v-for="i in indexz" :src="userInfo.avatar" class="img" fit="cover"></el-image>
+						</div>
+					</template>
+					<template #footer>
+						<el-text>{{item.createTime}}</el-text>
+					</template>
+				</el-card>
+			</template>
+			<el-empty v-if="list.length <= 0" description="暂无数据"></el-empty>
 		</div>
 	</div>
+	<whiteNote :visible="whiteVisible" @update:visible="whiteVisible = $event"></whiteNote>
+	
 </template>
 
 <script setup>
 import { getAssetsImageFile } from '@/utils/getAssetsFile';
-import Vditor from 'vditor';
-import 'vditor/dist/index.css';
+import whiteNote from "@/components/whiteNote.vue"
 import { onMounted, ref } from 'vue';
-import { getUserInfoById } from '@/api/api';
+import { getUserInfoById,getNoteAll } from '@/api/api';
 import { useStore } from 'vuex';
-	const vditor = ref(null);
 	const indexz = ref(9);
-	const userInfo = ref(null);
+	const userInfo = ref({});
 	const store = useStore();
+	const list = ref([]);
+	const whiteVisible = ref(false);
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	const getUser = async () => {
 		if(!store.state.isLogin){
 			let {data} = await getUserInfoById(1);
@@ -49,51 +67,13 @@ import { useStore } from 'vuex';
 		}
 		
 	}
+	const noteAll = async () => {
+		let {data} = await getNoteAll();
+		list.value = data.data;
+	}
 	onMounted(() => {
 		getUser();
-		
-		
-		/* vditor.value = new Vditor('vditor',{
-			width:'50vw',
-			height:'50vh',
-			toolbar:[
-				'emoji', //表情,
-				'headings', //标题,
-				'bold', //加粗
-				'italic', //斜体
-				'strike', //删除线
-				'|', 
-				'list',  //无序列表
-				'ordered-list',  //有序列表
-				'check',  //任务列表
-				'outdent',  //列表反向缩进
-				'indent',  //列表缩进
-				'|',
-				'quote', //引用
-				'line',  //分割线
-				'code',  //代码块
-				'inline-code',  //行内代码
-				'insert-before',  //起始插入行
-				'insert-after',  //末尾插入行
-				'|',
-				'upload', //上传
-				'table', //表格
-				'|',
-				'undo', //撤销
-				'redo', //重做
-				'|',
-				'link', //链接
-				'edit-mode', //切换编辑模式
-				'fullscreen', //全屏
-				'outline', //大纲
-				'export' //导出
-			],
-			after: () => {
-				console.log("渲染完成")
-				vditor.value.setTheme('dark','dark')
-			},
-			
-		}) */
+		noteAll();
 	})
 	
 </script>
@@ -124,6 +104,9 @@ import { useStore } from 'vuex';
 	}
 	:deep(.el-card__header){
 		border: 0;
+	}
+	.notes-text{
+		padding: 0px 5px 7px;
 	}
 	.notes-image{
 		display: grid;

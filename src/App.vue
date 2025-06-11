@@ -8,7 +8,7 @@ import { RouterView } from 'vue-router'
 
 <style>
 	body{
-		font-family: var(--globalFont);
+		/* font-family: var(--globalFont); */
 	}
 	.index-alter{
 		font-size: 22px !important;

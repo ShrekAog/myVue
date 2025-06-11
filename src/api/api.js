@@ -1,7 +1,7 @@
 import { ElMessage, ElNotification } from 'element-plus';
 import axiosInstance from '@/utils/axiosConfig';
 import router from '@/router';
-
+import store from '@/store/store';
 // a	动画
 // b	漫画
 // c	游戏
@@ -86,8 +86,7 @@ export const updateUser = async (user) => {
 }
 
 export const outLogin = () => {
-	localStorage.removeItem("token");
-	localStorage.removeItem("router");
+	store.commit("user/outLogin");
 	router.push({path:'/login'})
 }
 
@@ -225,7 +224,7 @@ export const getListByClassifyId = async (id) => {
 
 
 
-//config
+//config start
 export const getConfigList = async () => {
 	return await axiosInstance.get('/api/config/list')
 }
@@ -253,3 +252,11 @@ export const updateLoginWallpaperConfig = async (value) => {
 export const updateRegisterWallpaperConfig = async (value) => {
 	return await axiosInstance.put('/api/config/updateRegisterWallpaperConfig',null,{params:{value:value}})
 }
+// config end 
+
+// note start
+export const getNoteAll = async () => {
+	return axiosInstance.get('/api/note/list');
+}
+
+// note end

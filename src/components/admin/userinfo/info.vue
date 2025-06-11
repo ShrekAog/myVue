@@ -8,14 +8,14 @@
 	>
 		<div class="info-container">
 			<div class="avatar-box">
-				<el-avatar class="avatar" :src="user.avatar" shape="circle" :size="140" fit="cover"></el-avatar>
+				<el-avatar class="avatar" :src="data.avatar" shape="circle" :size="140" fit="cover"></el-avatar>
 			</div>
 			<div class="info-box">
-				<p style="font-size: 16px;font-weight: 600;">{{user.nickName}}</p>
-				<p style="font-size: 12px;color: #ccc;">通行证ID:{{user.id}}</p>
-				<p style="font-size: 12px;color: #ccc;">手机:{{user.phoneNumber}}</p>
-				<p style="font-size: 12px;color: #ccc;">邮箱:{{user.email}}</p>
-				<p style="margin-top: 15px;max-width: 80%;">{{user.introduction}}</p>
+				<p style="font-size: 16px;font-weight: 600;">{{data.nickName}}</p>
+				<p style="font-size: 12px;color: #ccc;">通行证ID:{{data.id}}</p>
+				<p style="font-size: 12px;color: #ccc;">手机:{{data.phoneNumber}}</p>
+				<p style="font-size: 12px;color: #ccc;">邮箱:{{data.email}}</p>
+				<p style="margin-top: 15px;max-width: 80%;">{{data.introduction}}</p>
 			</div>
 		</div>
 		
@@ -26,25 +26,25 @@
 			<div class="main-info">
 				<div class="main-avatar flexCenter">
 					<div style="text-align: center;cursor: pointer;">
-						<el-avatar class="avatar" :src="user.avatar" shape="circle" :size="140" fit="cover"></el-avatar>
+						<el-avatar class="avatar" :src="data.avatar" shape="circle" :size="140" fit="cover"></el-avatar>
 						<p style="color: #00aaff;font-size: 18px;margin-top: 15px;">修改头像</p>
 					</div>					
 				</div>
 				
-				<el-form :model="user" class="form">
+				<el-form :model="data" class="form">
 					<el-form-item label="昵称" label-width="60px">
-						<el-input class="input" v-model="user.nickName"></el-input>
+						<el-input class="input" v-model="data.nickName"></el-input>
 						<span class="edit">{{nickNameLength}}/20</span>
 					</el-form-item>
 					<el-form-item label="性别" label-width="60px">
-						<el-radio-group v-model="user.gender" class="radio-group">
+						<el-radio-group v-model="data.gender" class="radio-group">
 							<el-radio :value="1">男</el-radio>
 							<el-radio :value="2">女</el-radio>
 							<el-radio :value="0">保密</el-radio>
 						</el-radio-group>
 					</el-form-item>
 					<el-form-item label="简介" label-width="60px">
-						<el-input class="input" type="textarea" :rows="5" resize="none" v-model="user.introduction"></el-input>
+						<el-input class="input" type="textarea" :rows="5" resize="none" v-model="data.introduction"></el-input>
 						<span class="edit-textarea">{{introductionLength}}/150</span>
 					</el-form-item>
 					<div class="flexCenter">
@@ -61,13 +61,13 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import { getUserInfoByToken, showElMsg, updateUser} from "@/api/api";
-	
+import { useStore } from "vuex";
+	const store = useStore();
 	const user = ref({});
 	const dialog = ref('800px');
 	const nickNameLength = ref(0);
 	const introductionLength = ref(0);
 	onMounted(() => {
-		info();
 		window.onresize = () => {
 			if(props.visible){
 				setDialogWidth();
@@ -77,17 +77,11 @@ import { getUserInfoByToken, showElMsg, updateUser} from "@/api/api";
 	})
 	
 	const update = async () => {
-		let {data} = await updateUser(user.value);
+		let {data} = await updateUser(props.data);
 		if(data.data){
 			showElMsg("success","修改成功");
 			emit("update:visible",false);
 		}
-	}
-	
-	const info = async () => {
-		let {data} = await getUserInfoByToken(localStorage.getItem("token"));
-		user.value = data.data;
-		console.log(user.value);
 	}
 	
 	const calculateNickNameLength = (val,size) => {
@@ -103,7 +97,7 @@ import { getUserInfoByToken, showElMsg, updateUser} from "@/api/api";
 			result += char;
 			
 		}
-		console.log(`Final length: ${length}, Result: ${result}`); // 调试信息
+		
 		return {length,result};
 	}
 	watch(() => user.value.nickName,(New,old) => {
@@ -130,7 +124,11 @@ import { getUserInfoByToken, showElMsg, updateUser} from "@/api/api";
 		}
 	}
 	const props = defineProps({
-		visible:Boolean
+		visible:Boolean,
+		data:{
+			type: Object,
+			required: true
+		}
 	})
 	const emit = defineEmits(["update:visible"])
 </script>

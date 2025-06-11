@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-aside :class="['aside', isCollapse ? 'collapse' : '']" :width="isCollapse ? '64px' : '256px'">
-      <adminRouter :is-collapse="isCollapse" />
+      <adminRouter :is-collapse="isCollapse"/>
     </el-aside>
     <el-container>
       <el-header class="header">
@@ -34,7 +34,8 @@
       </el-main>
     </el-container>
   </el-container>
-  <user-info-component :visible="visible" @update:visible="visible = $event">
+  
+  <user-info-component :data="userInfo" :visible="visible" @update:visible="visible = $event">
 	  
   </user-info-component>
   
@@ -47,17 +48,19 @@ import adminRouter from "./adminRouter.vue";
 import userInfoComponent from "./userinfo/info.vue";
 import { onMounted, reactive, ref } from 'vue'
 import {getUserInfoByToken,outLogin} from '@/api/api'
+import { useStore } from "vuex";
 
+const store = useStore();
 const route = useRoute()
 const isCollapse = ref(false)
-const userInfo = ref(false)
+const userInfo = ref({})
 
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
 }
 
 const user = async () => {
-	let {data} = await getUserInfoByToken(localStorage.getItem("token"));
+	let {data} = await getUserInfoByToken(store.state.user.token);
 	userInfo.value = data.data;
 }
 

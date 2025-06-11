@@ -91,3 +91,12 @@
 		background-position: 0 50%;
 	}
 }
+/* homeLogin */
+@keyframes home-login-up{
+	0% {
+		transform: translateY(350px);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}

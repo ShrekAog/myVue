@@ -16,7 +16,7 @@
 		<div class="bannerYun2"></div>
 	</div>
 	<Router-View />
-	<el-footer style="height: 200px;background-color: red;"></el-footer>
+	<el-footer style="height: 100px;background-color: red;"></el-footer>
 </template>
 
 <script setup>
@@ -24,7 +24,7 @@
 	import EasyTyper from 'easy-typer-js'
 	import { onMounted,reactive, ref } from "vue";
 	import axiosInstance from "@/utils/axiosConfig";
-import { getResourceByList, getResourceList,yiyan } from "@/api/api";
+	import { getResourceByList,yiyan } from "@/api/api";
 	const easy = reactive({
 		output:'',
 		type:"custom",

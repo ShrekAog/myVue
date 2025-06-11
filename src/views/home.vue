@@ -32,6 +32,14 @@
 							<span>📸 相册</span>
 						</div>
 					</li>
+					<li class="flexCenter">
+						<div v-if="!store.state.user.isLogin" class="flexCenter home-login" @click="go('/homelogin')">
+							登录
+						</div>
+						<div v-else class="my-menu">
+							<span>个人中心</span>
+						</div>
+					</li>
 				</ul>
 			</div>
 		</div>
@@ -45,6 +53,7 @@
 				:show-close="false"
 				size="70%"
 				class="phone-drawer"
+				@close="easyObj = null"
 			  >
 			    <template #header>
 					<div class="drawer-header">
@@ -68,7 +77,7 @@
 		</div>
 	</transition>
 	<!-- 横屏遮罩 -->
-	<div class="info" v-if="isOrien"></div>
+	<!-- <div class="info" v-if="isOrien"></div> -->
 	<div id="mian-container">
 		<RouterView />
 	</div>
@@ -77,14 +86,18 @@
 <script setup>
 	import {ref,onMounted,onBeforeMount, reactive} from 'vue'
 	import { RouterView, useRouter } from 'vue-router'
-	import logo from '@/assets/home/logo.png'
+	import logo from '@/assets/image/logo.png'
 	import { getAssetsImageFile } from '@/utils/getAssetsFile'
 	import EasyTyper from 'easy-typer-js'
 	import axios from 'axios'
+	import { useStore } from 'vuex'
 	const router = useRouter();
+	const store = useStore();
 	let isPhone = ref(false);
 	let isDrawer = ref(false);
-	let isOrien = ref(false);
+	let isOutIng = ref(false);
+	let easyObj = ref(null);
+	let homeLoginVisible = ref(false);
 	let easy = reactive({
 		output:'',
 		type:"custom",
@@ -108,7 +121,6 @@
 	function init(){
 		document.title = "星辰万里"
 		resize();
-		isOrientation();
 	}
 	const go = (path) => {
 		router.push({path:path})
@@ -123,34 +135,28 @@
 			localStorage.setItem("isPhone",isPhone.value);
 		})
 	}
-	function orientation(){
-		window.addEventListener("orientationchange",() => {
-			isOrientation();
-		})
-	}
+	
 	function clickDrawer(){
 		isDrawer.value = true;
-		axios.get("https://v1.hitokoto.cn/?c=i&c=j")
-		.then(({data}) => {
-			console.log(data.hitokoto);
-			initTyped(data.hitokoto)
-		})
-		.catch(err => {
-			initTyped("为美好的世界献上祝福吧!")
-		})
-	}
-	function initTyped(input){
-		const typed = new EasyTyper(easy,input);
-	}
-	function isOrientation(){
-		
-		if(window.orientation != 0 && isPhone.value){
-			ElMessageBox.alert("请将设备旋转到横屏模式","提示");
-			isOrien.value = true;
-		} else {
-			isOrien.value = false;
+		if(!isOutIng.value){
+			isOutIng.value = true;
+			axios.get("https://v1.hitokoto.cn/?c=i&c=j")
+			.then(({data}) => {
+				console.log(data.hitokoto);
+				initTyped(data.hitokoto)
+			})
+			.catch(err => {
+				initTyped("为美好的世界献上祝福吧!")
+			})
 		}
 	}
+	function initTyped(input){
+		easyObj.value = new EasyTyper(easy,input,(msg) => {
+			isOutIng.value = false;
+		});
+	}
+	
+	
 </script>
 
 
@@ -288,5 +294,11 @@
 		background-color: #eee;
 	}
 	
+	.home-login{
+		width: 40px;
+		height: 40px;
+		background-color: #ffaa00;
+		border-radius: 50%;
+	}
 
 </style>
