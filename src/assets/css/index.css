@@ -41,6 +41,12 @@
 	justify-content: center;
 	align-items: center;
 }
+.flexCenterCol{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
 
 /* 图片 */
 .background-image{

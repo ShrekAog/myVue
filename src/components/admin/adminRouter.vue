@@ -49,7 +49,7 @@
 
 <script setup>
 import { onMounted, reactive, ref } from "vue";
-import { getUserRouters,parseUserToken } from "@/api/api";
+import { getUserRouters } from "@/api/api";
 import { useRoute, useRouter } from "vue-router";
 import { getAssetsImageFile } from "@/utils/getAssetsFile";
 import { useStore } from "vuex";
@@ -62,23 +62,13 @@ import { useStore } from "vuex";
 	  routers: [],
 	});
 
-	onMounted(() => {
-	  getRouters();
+	onMounted(async () => {
+	  let {data:{data}} = await getUserRouters(store.state.user.userType);
+	  console.log(data)
+	  status.routers = data;
+	  isRender.value = true;
 	});
-	async function getRouters() {
-		
-		let {data: { data },} = await getUserRouters(store.state.user.userType);
-		status.routers = data;
-		
-		let currentRouter = store.state.user.routers;
-		let currentRouterData = currentRouter ? currentRouter : null;
-		
-		//判断旧路由菜单与新路由菜单是否一致，不一致更新本地菜单
-		if(JSON.stringify(data) != JSON.stringify(currentRouterData)){
-			store.commit("user/updateRouters",data)
-		}
-		isRender.value = true;
-	}
+	
 
 	const props = defineProps({
 	  isCollapse: {

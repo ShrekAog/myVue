@@ -1,13 +1,13 @@
 import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate'
-import {parseUserToken} from '@/api/api'
 const modulesAState = {
 		namespaced: true,
 		state:{
 			isLogin:false,
 			token:'',
 			routers:[],
-			userType:0
+			userType:0,
+			id:0
 		},
 		mutations:{
 			outLogin(state){
@@ -15,6 +15,14 @@ const modulesAState = {
 				state.token = '';
 				state.routers = [];
 				state.userType = 0;
+				state.id = 0;
+			},
+			login(state,payVal){
+				state.isLogin = payVal.isLogin;
+				state.token = payVal.token;
+				state.routers = payVal.routers;
+				state.userType = payVal.userType;
+				state.id = payVal.id;
 			},
 			isLogin(state,payVal){
 				state.isLogin = payVal;
@@ -27,6 +35,9 @@ const modulesAState = {
 			},
 			updateUserType(state,payVal){
 				state.userType = payVal;
+			},
+			updateUserId(state,payVal){
+				state.id = payVal;
 			}
 		},
 		actions:{

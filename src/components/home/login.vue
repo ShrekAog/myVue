@@ -44,7 +44,7 @@
 
 <script setup>
 	import { onMounted, ref,reactive } from "vue";
-	import { getResourceByList,yiyan,userLogin, showElMsg,parseUserToken,getUserRouters,checkUsernameExist,userRegister } from "@/api/api";
+	import { getResourceByList,yiyan,userLogin, showElMsg,getUserRouters,checkUsernameExist,userRegister } from "@/api/api";
 	import { useStore } from "vuex";
 	import { useRouter } from "vue-router";
 	const store = useStore();
@@ -84,14 +84,14 @@
 		if(!data.success){
 			showElMsg("error",data.message)
 		}else{
-			store.commit("user/isLogin",true);
-			store.commit("user/isToken",data.data.token);
-			let type = await parseUserToken(store.state.user.token);
-			store.commit("user/updateUserType",type.data.data);
-			let routers = await getUserRouters(store.state.user.userType);
-			store.commit("user/updateRouters",routers.data.data);
+			store.commit("user/login",{
+				isLogin:true,
+				token:data.data.token,
+				userType:data.data.userType,
+				id:data.data.id
+			});
 			showElMsg("success","登录成功");
-			router.push({path:"/"})
+			router.push({path:"/"});
 		}
 		
 		userfrom.value.username = '';

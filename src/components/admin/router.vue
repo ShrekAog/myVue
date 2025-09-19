@@ -20,11 +20,11 @@
 					<span>{{row.level == 1 ? '是' : '否'}}</span>
 				</template>
 			</el-table-column>
-			<el-table-column align="center" prop="parentId" label="父节点">
+			<!-- <el-table-column align="center" prop="parentId" label="父节点">
 				<template v-slot="{ row }">
 					<span>{{row.parentId}}</span>
 				</template>
-			</el-table-column>
+			</el-table-column> -->
 			<el-table-column align="center" prop="permissionsId" label="权限">
 				<template v-slot="{ row }">
 					<span>{{row.permissionId == 1 ? '管理员' : '普通用户'}}</span>
@@ -54,7 +54,7 @@
 				<template v-slot="{ row }">
 					<el-switch 
 						:model-value="!row.isHidden"
-						@update:model-value="(val) => {row.isHidden = val ? 0 : 1;updateRouterStatus(row)}"
+						@update:model-value="(val) => {row.isHidden = val ? 0 : 1;updateRouter(row)}"
 					/>
 				</template>
 			</el-table-column>
@@ -165,7 +165,7 @@
 		</el-form>
 		<template #footer>
 			<div>
-				<el-button type="primary" @click="upload" :loading="isUploading">确定</el-button>
+				<el-button type="primary" @click="updateRouterHandler" :loading="isUploading">确定</el-button>
 			</div>
 		</template>
 	</el-dialog>
@@ -252,10 +252,10 @@
 	addRouter,
 	removeRouter,
 	showElMsg,showElMsgBox,
-	updateRouterStatus
 } from "@/api/api"
 	import { onMounted, reactive, ref } from "vue";
 	import AddChildrenRouter from './adminComponent/addChildrenRouter.vue'
+import { useStore } from "vuex";
 	const icons = reactive([
 		'&#xe602;',//首页
 		'&#xe892;',//设置
@@ -306,6 +306,7 @@
 			]
 		}
 	})
+	const store = useStore();
 	const addFormRef = ref()
 	const isRender = ref(false)
 	const updateFormShow = ref(false)
@@ -330,7 +331,7 @@
 		objects.routerData = row;
 		updateFormShow.value = true;
 	}
-	function upload(){
+	function updateRouterHandler(){
 		isUploading.value = true;
 		objects.routerData.updateBy = 'admin'
 		updateRouter(objects.routerData)

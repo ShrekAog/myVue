@@ -29,7 +29,7 @@
 <script setup>
 import {useRouter} from 'vue-router'
 import { onMounted, reactive, ref } from 'vue';
-import { userLogin,elNotification,getLoginWallpaperConfig,getResourceById,parseUserToken,getUserRouters } from "@/api/api";
+import { userLogin,elNotification,getLoginWallpaperConfig,getResourceById,getUserRouters } from "@/api/api";
 import { User,Lock } from '@element-plus/icons-vue'
 import { useStore } from 'vuex';
 	const store = useStore();
@@ -61,12 +61,16 @@ import { useStore } from 'vuex';
 					loginFormRef.value.resetFields();
 					return;
 				}
-				store.commit("user/isLogin",true);
-				store.commit("user/isToken",data.data.token);
-				let type = await parseUserToken(store.state.user.token);
-				store.commit("user/updateUserType",type.data.data);
-				let routers = await getUserRouters(store.state.user.userType);
-				store.commit("user/updateRouters",routers.data.data);
+				let routers = await getUserRouters(data.data.userType);
+				
+				store.commit("user/login",{
+					isLogin:true,
+					token:data.data.token,
+					routers:routers.data.data,
+					userType:data.data.userType,
+					id:data.data.id
+				});
+				
 				router.push({path:'/admin'});
 				loginFormRef.value.resetFields();
 				

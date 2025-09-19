@@ -100,3 +100,24 @@
 		transform: translateY(0);
 	}
 }
+/* photoSetting */
+@keyframes setting-dialog-up{
+	0%{
+		transform: translateX(-250px);
+		opacity: 0;
+	}
+	100%{
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+@keyframes setting-dialog-out{
+	0%{
+		transform: translateX(0);
+		opacity: 1;
+	}
+	100%{
+		transform: translateX(-250px);
+		opacity: 0;
+	}
+}

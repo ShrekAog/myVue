@@ -1,23 +1,46 @@
-import { parseUserToken } from '@/api/api'
 import { createRouter, createWebHistory } from 'vue-router'
 import nProgress from 'nprogress'
-import { parse } from 'vue/compiler-sfc'
+import {checkTokenIsExpired,elNotification,showElMsg} from "@/api/api"
 import store from '@/store/store'
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
+
+const Routes404 = [
 	{
 		path: '/:catchAll(.*)',
 		name: '404',
 		component: () => import('../components/404.vue')
+	}
+]
+
+const photosRoutes = [
+	{
+		path:'photos',
+		name: 'photos',
+		component: () => import('../components/home/photos/photos.vue'),
 	},
+	{
+		path: 'photos/photosSetting',
+		name: 'photosSetting',
+		component: () => import('../components/home/photos/photosSetting.vue')
+	},
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+	...Routes404,
     {
       path: '/',
       component: () => import('../views/home.vue'),
-	  children:[{
+	  children:[
+		{
 			path: '/',
 			name: 'index',
 			component: () => import('../components/index.vue')
+		},
+		{
+			path: '/homelogin',
+			name: 'homeLogin',
+			component: () => import('../components/home/login.vue')
 		},
 		{
 			path: '/content',
@@ -26,14 +49,11 @@ const router = createRouter({
 			children:[{
 				path: '/suibi',
 				name: 'suibi',
-				component: () => import('../components/suibi.vue')
+				component: () => import('../components/home/suibi/suibi.vue')
 			}]
 		},
-		{
-			path: '/homelogin',
-			name: 'homeLogin',
-			component: () => import('../components/home/login.vue')
-		}
+		...photosRoutes
+		
 	  ]
     },
 	{
@@ -48,55 +68,46 @@ const router = createRouter({
 			path: 'engine',
 			name: 'engine',
 			meta:{
-				title: '搜索引擎',
-				role:['admin','user']
+				title: '搜索引擎'
 			},
 			component: () => import('../components/admin/engine.vue')
 		},{
 			path: 'index',
 			name: 'adminIndex',
-			meta:{
-				role:['admin','user']
-			},
 			component: () => import('../components/admin/index.vue')
 		},{
 			path: 'router',
 			name: 'router',
 			meta:{
-				title: '路由管理',
-				role:['admin','user']
+				title: '路由管理'
 			},
 			component: () => import('../components/admin/router.vue')
 		},{
 			path: 'images',
 			name: 'images',
 			meta:{
-				title: '图库',
-				role:['admin','user']
+				title: '图库'
 			},
 			component: () => import('../components/admin/images.vue'),
 		},{
 			path: 'images/classify',
 			name: 'classify',
 			meta:{
-				title: '资源分类',
-				role:['admin','user']
+				title: '资源分类'
 			},
 			component: () => import('../components/admin/classify/classify.vue'),
 		},{
 			path: 'images/icon',
 			name: 'icon',
 			meta:{
-				title:"图标库",
-				role:['admin','user']
+				title:"图标库"
 			},
 			component: () => import('../components/admin/icon.vue')
 		},{
 			path: 'images/classify/list',
 			name: 'classifyList',
 			meta:{
-				title:'资源分类',
-				role:['admin','user']
+				title:'资源分类'
 			},
 			component: () => import('../components/admin/classify/classifyImageList.vue'),
 		},
@@ -104,8 +115,7 @@ const router = createRouter({
 			path: 'config',
 			name: '配置',
 			meta:{
-				title:'设置',
-				role:['admin','user']
+				title:'设置'
 			},
 			component: () => import('../components/admin/config.vue')
 		}
@@ -128,23 +138,48 @@ const router = createRouter({
   ],
 })
 
+const whiteList = ['/','/homelogin'];
+
 router.beforeEach(async (to,from,next) => {
-	let token = store.state.user.token;
+	
 	nProgress.start();
-	if(to.path == "/login" && token){
-		next({path:"/admin/index"})
+	
+	
+	
+	let token = store.state.user.token;
+	let isExpired = await checkToken();
+	
+	
+	if(whiteList.includes(to.path)){
+		next();
+		return;
 	}
-	if(to.path.startsWith("/admin")){
-		//没有token
-		if(!token){
+	
+	if(!token || isExpired){
+		elNotification("警告","请先登录","warning")
+		next({path:'/homelogin'});
+		return;
+	}
+	next();
+	
+	/* if(to.path.startsWith("/admin")){
+		let isExpired = await checkToken();
+		if(isExpired){
+			console.log("令牌已过期或不存在");
 			next({path:"/login"});
 			return;
 		}
+		//没有菜单 说明第一次登录后台
+		if(store.state.user.routers <= 0){
+			next({path:"/login"});
+			return;
+		}
+		
 		const parseToken = store.state.user.userType;
 		if(parseToken){
-			const requiredRoles = to.meta.role || [];
+			
 			const userType = parseToken == 1 ? 'admin' : 'user';
-			if(requiredRoles.includes(userType) && includesRouter(to.path)){
+			if(includesRouter(to.path)){
 				next();
 			}else{
 				if(!store.state.user.routers){
@@ -162,7 +197,7 @@ router.beforeEach(async (to,from,next) => {
 		}
 	}else {
 		next();
-	}
+	} */
 })
 router.afterEach(() => {
 	nProgress.done();
@@ -182,7 +217,21 @@ const includesRouter = (path) => {
 		})
 	}
 	return false;
-	
 }
+const checkToken = async () => {
+		if(!store.state.user.token){ return null };
+		let data = await checkTokenIsExpired(store.state.user.token);
+		//被servlet拦截过期之后data为undefined，因为走不到springboot异常捕获。
+		if(!data){
+			store.commit("user/outLogin");
+			return true;
+		}
+		
+		if(data.data.data){
+			store.commit("user/outLogin");
+			return true;
+		}
+		return false;
+	}
 
 export default router

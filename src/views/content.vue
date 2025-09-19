@@ -16,10 +16,12 @@
 		<div class="bannerYun2"></div>
 	</div>
 	<Router-View />
-	<el-footer style="height: 100px;background-color: red;"></el-footer>
+
+	<mfooter />
 </template>
 
 <script setup>
+	import mfooter from "@/components/footer.vue"
 	import { RouterView } from "vue-router";
 	import EasyTyper from 'easy-typer-js'
 	import { onMounted,reactive, ref } from "vue";
@@ -55,6 +57,7 @@
 	
 	const wallpaper = async () => {
 		let {data} = await getResourceByList();
+		console.log(data)
 		data.data.forEach(item => {
 			if(item.type == "wallpaper"){
 				list.value.push(item);
@@ -75,6 +78,7 @@
 		position: relative;
 		width: 100vw;
 		height: 50vh;
+		overflow: hidden;
 	}
 	.cover{
 		position: absolute;

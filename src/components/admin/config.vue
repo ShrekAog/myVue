@@ -87,6 +87,7 @@ elNotification,
 	//主页壁纸
 	const wallpaperList = async () => {
 		let {data} = await getstatusList();
+		console.log(data);
 		data.data.forEach(item => {
 			objects.wallpaper.options.push({
 				value:item.id,
@@ -137,8 +138,8 @@ elNotification,
 	}
 	//修改主页配置
 	const updateWallpaper = async () => {
+		console.log(objects.wallpaper)
 		let {data} = await updateWallpaperConfig(objects.wallpaper.value);
-		console.log(data)
 		if(data.success){
 			showElMsg("success","修改成功");
 		}

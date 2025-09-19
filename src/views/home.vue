@@ -1,7 +1,7 @@
 <template>
 	<!-- el过度动画 -->
 	<transition name="el-fade-in-linear">
-		<div class="toolbar-content flexBetWeen" v-if="!isPhone">
+		<div class="toolbar-content flexBetWeen" :class="{'scroll-Y':scrolltop.y >= 400}" v-if="!isPhone">
 			<div class="toolbar-title">
 				<el-image fit="cover" :src="logo" style="height: 55px;" />
 			</div>
@@ -28,7 +28,7 @@
 						</div>
 					</li>
 					<li>
-						<div class="my-menu">
+						<div class="my-menu" @click="go('/photos')">
 							<span>📸 相册</span>
 						</div>
 					</li>
@@ -76,6 +76,9 @@
 			</el-drawer>
 		</div>
 	</transition>
+	
+	
+	
 	<!-- 横屏遮罩 -->
 	<!-- <div class="info" v-if="isOrien"></div> -->
 	<div id="mian-container">
@@ -91,6 +94,11 @@
 	import EasyTyper from 'easy-typer-js'
 	import axios from 'axios'
 	import { useStore } from 'vuex'
+import { checkTokenIsExpired, showElMsg } from '@/api/api'
+	let scrolltop = ref({
+		x:0,
+		y:0
+	});
 	const router = useRouter();
 	const store = useStore();
 	let isPhone = ref(false);
@@ -98,6 +106,7 @@
 	let isOutIng = ref(false);
 	let easyObj = ref(null);
 	let homeLoginVisible = ref(false);
+	let tokenIsExpired = ref(false);
 	let easy = reactive({
 		output:'',
 		type:"custom",
@@ -119,7 +128,8 @@
 		init();
 	})
 	function init(){
-		document.title = "星辰万里"
+		document.title = "星辰万里";
+		checkToken();
 		resize();
 	}
 	const go = (path) => {
@@ -134,6 +144,10 @@
 			}
 			localStorage.setItem("isPhone",isPhone.value);
 		})
+		window.addEventListener("scroll",scrolltopHandler);
+	}
+	function scrolltopHandler(){
+		scrolltop.value.y = window.scrollY;
 	}
 	
 	function clickDrawer(){
@@ -155,6 +169,14 @@
 			isOutIng.value = false;
 		});
 	}
+	const checkToken = async () => {
+		if(!store.state.user.token){ return };
+		let data = await checkTokenIsExpired(store.state.user.token);
+		if(data.data.data){
+			store.commit("user/outLogin");
+			showElMsg("error","用户已过期");
+		}
+	}
 	
 	
 </script>
@@ -169,6 +191,14 @@
 		z-index: 100;
 		user-select: none;
 		transition: background .3s ease-in-out;
+	}
+	.scroll-Y{
+		background-color: rgba(255, 255, 255, .7);
+		color: #333;
+		backdrop-filter:saturate(5) blur(30px);
+	}
+	.scroll-Y:hover{
+		background-color: rgba(255, 255, 255, .7) !important;
 	}
 	.toolbar-content:hover{
 		background: rgba(0, 0, 0, .6);
@@ -292,6 +322,7 @@
 	}
 	#mian-container{
 		background-color: #eee;
+		overflow: hidden;
 	}
 	
 	.home-login{

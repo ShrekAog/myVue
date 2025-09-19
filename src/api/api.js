@@ -2,6 +2,7 @@ import { ElMessage, ElNotification } from 'element-plus';
 import axiosInstance from '@/utils/axiosConfig';
 import router from '@/router';
 import store from '@/store/store';
+import axios from 'axios';
 // a	动画
 // b	漫画
 // c	游戏
@@ -14,6 +15,10 @@ import store from '@/store/store';
 // j	网易云
 // k	哲学
 // l	抖机灵
+
+//控制弹框频率
+let is = false;
+
 
 export const yiyan = (params = '') => {
 	const url = new URL("https://international.v1.hitokoto.cn/");
@@ -35,10 +40,15 @@ export const elNotification = (title,message,type) => {
 }
 
 export const showElMsg = (type,message) => {
-	ElMessage({
-		type:type,
-		message:message
-	})
+	if(!is){
+		is = true;
+		ElMessage({
+			type:type,
+			message:message
+		})
+		setTimeout(() => is = false,3000)
+	}
+	
 }
 
 export const showElMsgBox = (message,title,type,callback) => {
@@ -53,8 +63,38 @@ export const showElMsgBox = (message,title,type,callback) => {
 	).then(() => {
 		callback();
 	})
+	.catch(() => {
+		console.log("已取消")
+	})
 }
 
+export const getVideoCover = (videoUrl) => {
+		return new Promise((resolve,reject) => {
+			console.log(videoUrl)
+			const video = document.createElement('video');
+			video.src = videoUrl;
+			video.crossOrigin = "anonymous";
+			video.currentTime = 1;
+			
+			
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+			
+			video.oncanplay = () => {
+				canvas.width = video.videoWidth || 320;
+				canvas.height = video.videoHeight || 240;
+				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+				const videoFirstImgSrc = canvas.toDataURL("image/png");
+				video.remove();
+				canvas.remove();
+				resolve(videoFirstImgSrc);
+			};
+			video.onerror = (err) => {
+			    reject(err);
+			};
+		})
+	}
+	
 //admin start login
 export const userLogin = async (userForm) => {
 	return axiosInstance.post("/api/users/login",userForm);
@@ -69,9 +109,6 @@ export const checkUsernameExist = async (username) => {
 //admin end login
 
 //admin start user
-export const parseUserToken = async (token) => {
-	return axiosInstance.get("/api/users/parseUserToken",{params:{token:token}})
-}
 
 export const getUserInfoByToken = async (token) => {
 	return axiosInstance.get("/api/users/getUserInfo",{params:{token:token}})
@@ -90,6 +127,9 @@ export const outLogin = () => {
 	router.push({path:'/login'})
 }
 
+export const checkTokenIsExpired = async (token) => {
+	return axiosInstance.post(`/api/users/checkToken`,token);
+}
 
 //admin end user
 
@@ -98,7 +138,7 @@ export const outLogin = () => {
 
 //根据用户类型获取路由列表
 export const getUserRouters = async (userType) => {
-	return await axiosInstance.get(`/api/users/routers/${userType}`);
+	return await axiosInstance.get(`/api/users/router/getRouterListByUserType/${userType}`);
 }
 //获取所有路由菜单
 export const getRouterList = async () => {
@@ -106,7 +146,7 @@ export const getRouterList = async () => {
 }
 //更新路由菜单
 export const updateRouter = async (router) => {
-	return await axiosInstance.put("/api/users/routers/updateRouter",router)
+	return await axiosInstance.put("/api/users/router/updateRouter",router)
 }
 //新增根路由
 export const addRouter = async (router) => {
@@ -135,6 +175,15 @@ export const getResourceList = async (params) => {
 export const getResourceByList = async () => {
 	return await axiosInstance.get("/api/resource/byList");
 }
+export const getResourceByClassifyId = async (params) => {
+	return await axiosInstance.get(`/api/resource/getResourceListByClassifyId`,{params:params});
+}
+export const getResourceCountByClassifyId = async (id) => {
+	return await axiosInstance.get(`/api/resource/getResourceCount/${id}`);
+}
+export const getResourceVideoListById = async (id) => {
+	return await axiosInstance.get(`/api/resource/getResourceVideo/${id}`);
+}
 
 //获取单个资源
 export const getResourceById = async (id) => {
@@ -150,15 +199,26 @@ export const uploadImg = (formData,onUploadPro) => {
 		}
 	})
 }
+
+export const uploadImgList = (formData,onUploadPro) => {
+	return axiosInstance.post("/api/resource/uploadList",formData,{
+		timeout:0,
+		onUploadProgress:(progressEvent) => {
+			onUploadPro(progressEvent)
+		}
+	});
+}
+
 //根据资源对象修改status
 export const updateStatus = async (resource) => {
 	return await axiosInstance.put('/api/resource/updateStatus',resource)
 }
 //根据ID删除资源
-export const deleteResource = async (id) => {
+export const deleteResource = async (id,userId) => {
 	return await axiosInstance.delete('/api/resource/delete',{
 		params:{
-			id:id
+			id:id,
+			userId:userId
 		}
 	})
 }
@@ -193,6 +253,10 @@ export const deleteEngine = async (id) => {
 //获取目录
 export const getfyList = async () => {
 	return await axiosInstance.get('/api/classify/classifyList')
+}
+//根据用户ID获取目录
+export const getclassFyListById = async (userId) => {
+	return await axiosInstance.get(`/api/classify/getClassFyList/${userId}`)
 }
 
 export const getstatusList = async () => {
@@ -255,8 +319,38 @@ export const updateRegisterWallpaperConfig = async (value) => {
 // config end 
 
 // note start
-export const getNoteAll = async () => {
+//用于未登录用户获取管理日志
+/* export const getNoteAll = async () => {
 	return axiosInstance.get('/api/note/list');
+} */
+
+export const sendNote = async (note) => {
+	return axiosInstance.post('/api/note/add',note);
+}
+
+export const upNoteResource = async (formData,onUploadPro) => {
+	return axiosInstance.post('/api/note/notesImage',formData,{
+		timeout:0,
+		onUploadProgress:(progressEvent) => {
+			onUploadPro(progressEvent)
+		}
+	});
+}
+
+export const getNoteByUserId = async (params) => {
+	return axiosInstance.get("/api/note/getNoteByUserId",{
+		params:params
+	});
+}
+
+export const getNoteResourceByUserId = async (params) => {
+	return axiosInstance.get("/api/note/getNoteResourceByUserId",{
+		params:params
+	});
+}
+
+export const delNoteById = async (id) => {
+	return axiosInstance.delete(`/api/note/remove/${id}`);
 }
 
 // note end
